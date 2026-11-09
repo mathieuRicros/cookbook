@@ -1,0 +1,24 @@
+# Dépendances
+node_modules/
+
+# Builds
+dist/
+*.tsbuildinfo
+
+# Variables d'environnement (les .env.example sont versionnés)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Données locales Docker / base de données
+.docker-data/
+
+# OS / éditeurs
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

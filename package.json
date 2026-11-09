@@ -1,0 +1,23 @@
+{
+  "name": "cookbook",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo cookbook : API Node/GraphQL + front React",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w @cookbook/api\" \"npm run dev -w @cookbook/web\"",
+    "dev:api": "npm run dev -w @cookbook/api",
+    "dev:web": "npm run dev -w @cookbook/web",
+    "build": "npm run build -w @cookbook/api && npm run build -w @cookbook/web",
+    "typecheck": "npm run typecheck -w @cookbook/api && npm run typecheck -w @cookbook/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.0"
+  }
+}
