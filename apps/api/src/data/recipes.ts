@@ -1,6 +1,6 @@
-// Couche d'accès aux données.
-// Pour l'instant : stockage en mémoire. Sera remplacée par PostgreSQL (Prisma)
-// à l'étape Docker, sans changer les résolveurs.
+// Couche d'accès aux données des recettes (PostgreSQL via Prisma).
+
+import { prisma } from './prisma.js';
 
 export interface Recipe {
   id: string;
@@ -8,17 +8,12 @@ export interface Recipe {
   description: string;
 }
 
-const recipes: Recipe[] = [
-  { id: '1', title: 'Crêpes', description: 'Farine, œufs, lait, une pincée de sel.' },
-  { id: '2', title: 'Ratatouille', description: 'Légumes du soleil mijotés à feu doux.' },
-];
+const select = { id: true, title: true, description: true } as const;
 
-export function listRecipes(): Recipe[] {
-  return recipes;
+export function listRecipes(): Promise<Recipe[]> {
+  return prisma.recipe.findMany({ select, orderBy: { createdAt: 'asc' } });
 }
 
-export function addRecipe(input: Omit<Recipe, 'id'>): Recipe {
-  const recipe: Recipe = { id: String(recipes.length + 1), ...input };
-  recipes.push(recipe);
-  return recipe;
+export function addRecipe(input: Omit<Recipe, 'id'>): Promise<Recipe> {
+  return prisma.recipe.create({ data: input, select });
 }

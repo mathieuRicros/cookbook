@@ -1,0 +1,52 @@
+# Environnement local.
+#   Base seule (dev avec npm run dev) : npm run db:up
+#   Stack complète en conteneurs      : npm run docker:up
+#
+# Ports modifiables via variables d'environnement : DB_PORT, API_PORT, WEB_PORT.
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cookbook
+      POSTGRES_PASSWORD: cookbook
+      POSTGRES_DB: cookbook
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cookbook -d cookbook"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      PORT: 4000
+      DATABASE_URL: postgresql://cookbook:cookbook@db:5432/cookbook
+      CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
+    ports:
+      - "${API_PORT:-4000}:4000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_URL: http://localhost:${API_PORT:-4000}/graphql
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+volumes:
+  db-data:

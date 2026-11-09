@@ -1,0 +1,18 @@
+// Schéma de la base de données (PostgreSQL).
+// Après modification : npm run db:migrate -w @cookbook/api
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+}

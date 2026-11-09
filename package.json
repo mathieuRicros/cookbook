@@ -14,7 +14,13 @@
     "dev:api": "npm run dev -w @cookbook/api",
     "dev:web": "npm run dev -w @cookbook/web",
     "build": "npm run build -w @cookbook/api && npm run build -w @cookbook/web",
-    "typecheck": "npm run typecheck -w @cookbook/api && npm run typecheck -w @cookbook/web"
+    "typecheck": "npm run typecheck -w @cookbook/api && npm run typecheck -w @cookbook/web",
+    "db:up": "docker compose up -d db",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run db:migrate -w @cookbook/api",
+    "db:seed": "npm run db:seed -w @cookbook/api",
+    "docker:up": "docker compose --profile app up --build -d",
+    "docker:down": "docker compose --profile app down"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
