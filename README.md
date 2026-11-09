@@ -13,7 +13,7 @@ cookbook/
 │   │       ├── data/         accès aux données (Prisma / PostgreSQL)
 │   │       ├── graphql/      schéma, types et résolveurs
 │   │       └── index.ts      point d'entrée
-│   │   ├── prisma/           schéma de la base, migrations, seed
+│   │   ├── prisma/           schéma de la base et migrations
 │   │   └── Dockerfile
 │   └── web/                  Front React (Vite + TypeScript)
 │       └── src/
@@ -39,7 +39,6 @@ cp apps/api/.env.example apps/api/.env
 cp apps/web/.env.example apps/web/.env
 npm run db:up          # PostgreSQL dans Docker
 npm run db:migrate     # crée les tables
-npm run db:seed        # données de départ
 npm run dev            # API + front
 ```
 
@@ -67,7 +66,6 @@ Les migrations sont appliquées automatiquement au démarrage de l'API.
 | `npm run typecheck` | vérifie les types |
 | `npm run db:up` / `db:down` | démarre / arrête la base Docker |
 | `npm run db:migrate` | crée / applique une migration (dev) |
-| `npm run db:seed` | insère les données de départ |
 | `npm run docker:up` / `docker:down` | stack complète en conteneurs |
 
 ## Prochaine étape
@@ -76,7 +74,7 @@ Hébergement gratuit (front, API, base).
 
 ## Connexion avec Google (SSO)
 
-Le site lit les recettes sans compte ; **ajouter une recette demande d'être connecté**.
+**Le site demande d'être connecté** : chaque utilisateur voit et ajoute uniquement ses propres recettes.
 La connexion utilise Google Sign-In : le navigateur obtient un jeton d'identité de Google,
 l'API le vérifie, crée l'utilisateur à la première connexion et renvoie un jeton de session
 (JWT, 7 jours). La déconnexion supprime ce jeton côté navigateur.

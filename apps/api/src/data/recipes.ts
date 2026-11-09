@@ -17,8 +17,13 @@ const select = {
   author: { select: { id: true, email: true, name: true, picture: true } },
 } as const;
 
-export function listRecipes(): Promise<Recipe[]> {
-  return prisma.recipe.findMany({ select, orderBy: { createdAt: 'asc' } });
+// Seules les recettes de l'utilisateur donné sont retournées.
+export function listRecipesByAuthor(authorId: string): Promise<Recipe[]> {
+  return prisma.recipe.findMany({
+    where: { authorId },
+    select,
+    orderBy: { createdAt: 'asc' },
+  });
 }
 
 export function addRecipe(

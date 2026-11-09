@@ -6,10 +6,9 @@ export interface Recipe {
   id: string;
   title: string;
   description: string;
-  author: { name: string } | null;
 }
 
-const RECIPE_FIELDS = 'id title description author { name }';
+const RECIPE_FIELDS = 'id title description';
 
 export async function fetchRecipes(): Promise<Recipe[]> {
   const data = await graphqlRequest<{ recipes: Recipe[] }>(

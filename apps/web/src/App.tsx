@@ -6,13 +6,19 @@ import { Header } from './components/Header';
 import { RecipeList } from './components/RecipeList';
 
 export function App() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  // Les recettes ne sont chargées qu'une fois connecté, et vidées à la déconnexion.
   useEffect(() => {
+    setError(null);
+    if (!user) {
+      setRecipes([]);
+      return;
+    }
     fetchRecipes().then(setRecipes).catch((e: Error) => setError(e.message));
-  }, []);
+  }, [user]);
 
   async function handleAdd(input: { title: string; description: string }) {
     try {
@@ -27,11 +33,14 @@ export function App() {
     <main>
       <Header />
       {error && <p className="error">Erreur : {error}</p>}
-      <RecipeList recipes={recipes} />
-      {user ? (
-        <AddRecipeForm onSubmit={handleAdd} />
+      {loading ? null : user ? (
+        <>
+          <h2>Mes recettes</h2>
+          <RecipeList recipes={recipes} />
+          <AddRecipeForm onSubmit={handleAdd} />
+        </>
       ) : (
-        <p>Connectez-vous avec Google pour ajouter une recette.</p>
+        <p>Connectez-vous avec Google pour voir et ajouter vos recettes.</p>
       )}
     </main>
   );

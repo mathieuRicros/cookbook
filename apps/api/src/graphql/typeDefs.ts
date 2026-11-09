@@ -26,6 +26,7 @@ export const typeDefs = /* GraphQL */ `
   }
 
   type Query {
+    "Recettes de l'utilisateur connecté (connexion requise)"
     recipes: [Recipe!]!
     "Utilisateur connecté, ou null"
     me: User

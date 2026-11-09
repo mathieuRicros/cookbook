@@ -3,13 +3,21 @@
 import { GraphQLError } from 'graphql';
 import { verifyGoogleCredential } from '../auth/google.js';
 import { signSessionToken } from '../auth/token.js';
-import { addRecipe, listRecipes } from '../data/recipes.js';
+import { addRecipe, listRecipesByAuthor } from '../data/recipes.js';
 import { upsertGoogleUser } from '../data/users.js';
 import type { GraphQLContext } from './context.js';
 
+function requireUser(ctx: GraphQLContext) {
+  if (!ctx.user) {
+    throw new GraphQLError('Connexion requise', { extensions: { code: 'UNAUTHENTICATED' } });
+  }
+  return ctx.user;
+}
+
 export const resolvers = {
   Query: {
-    recipes: () => listRecipes(),
+    recipes: (_: unknown, __: unknown, ctx: GraphQLContext) =>
+      listRecipesByAuthor(requireUser(ctx).id),
     me: (_: unknown, __: unknown, ctx: GraphQLContext) => ctx.user,
   },
   Mutation: {
@@ -31,10 +39,7 @@ export const resolvers = {
       args: { input: { title: string; description: string } },
       ctx: GraphQLContext,
     ) => {
-      if (!ctx.user) {
-        throw new GraphQLError('Connexion requise', { extensions: { code: 'UNAUTHENTICATED' } });
-      }
-      return addRecipe(args.input, ctx.user.id);
+      return addRecipe(args.input, requireUser(ctx).id);
     },
   },
 };

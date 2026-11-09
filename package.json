@@ -18,7 +18,6 @@
     "db:up": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:migrate": "npm run db:migrate -w @cookbook/api",
-    "db:seed": "npm run db:seed -w @cookbook/api",
     "docker:up": "docker compose --profile app up --build -d",
     "docker:down": "docker compose --profile app down"
   },
