@@ -73,3 +73,48 @@ Les migrations sont appliquées automatiquement au démarrage de l'API.
 ## Prochaine étape
 
 Hébergement gratuit (front, API, base).
+
+## Déploiement (offres gratuites)
+
+| Brique | Service | Dossier |
+|---|---|---|
+| Base PostgreSQL | [Neon](https://neon.com) | – |
+| API | [Render](https://render.com) (Docker) | `apps/api` + `render.yaml` |
+| Front | [Vercel](https://vercel.com) | `apps/web` |
+
+Limites à connaître : l'API Render gratuite s'endort après 15 min sans trafic
+(le premier appel suivant prend environ une minute) ; Neon met aussi la base en
+veille après 5 min ; Vercel Hobby est réservé aux usages non commerciaux.
+
+### 1. Base de données (Neon)
+
+1. Créer un projet Neon, région Europe.
+2. Copier l'URL de connexion **directe** (non « pooled »), du type
+   `postgresql://user:motdepasse@ep-xxx.neon.tech/neondb?sslmode=require`.
+3. Insérer les données de départ une fois, depuis votre machine :
+
+```bash
+DATABASE_URL="<url neon>" npm run db:seed
+```
+
+Les tables sont créées automatiquement par l'API au démarrage (`prisma migrate deploy`).
+
+### 2. API (Render)
+
+1. Render → New → **Blueprint** → choisir le dépôt GitHub (le fichier `render.yaml` est détecté).
+2. Renseigner `DATABASE_URL` (URL Neon). Laisser `CORS_ORIGIN` vide pour l'instant.
+3. Une fois déployée, noter l'URL de l'API, par ex. `https://cookbook-api.onrender.com`.
+
+### 3. Front (Vercel)
+
+1. Vercel → Add New Project → choisir le dépôt.
+2. **Root Directory** : `apps/web`. Framework : Vite.
+3. Variable d'environnement : `VITE_API_URL=https://<url-api-render>/graphql`.
+4. Déployer et noter l'URL du site.
+
+### 4. Boucler
+
+Dans Render, renseigner `CORS_ORIGIN` avec l'URL Vercel (sans `/` final) : l'API
+redémarre et le site peut l'appeler.
+
+Chaque `git push` sur la branche déployée redéploie automatiquement.

@@ -1,0 +1,17 @@
+# Blueprint Render : déploie l'API (Docker) sur l'offre gratuite.
+# Le front est sur Vercel et la base sur Neon (voir README, section Déploiement).
+
+services:
+  - type: web
+    name: cookbook-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      # À renseigner dans le tableau de bord Render (jamais dans git)
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
