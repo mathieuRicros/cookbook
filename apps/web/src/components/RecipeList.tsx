@@ -9,6 +9,7 @@ export function RecipeList({ recipes }: { recipes: Recipe[] }) {
         <li key={recipe.id}>
           <h3>{recipe.title}</h3>
           <p>{recipe.description}</p>
+          {recipe.author && <small>par {recipe.author.name}</small>}
         </li>
       ))}
     </ul>

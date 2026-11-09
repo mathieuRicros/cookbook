@@ -9,7 +9,9 @@ COPY apps/web/package.json apps/web/
 RUN npm ci
 COPY apps/web apps/web
 ARG VITE_API_URL
+ARG VITE_GOOGLE_CLIENT_ID
 ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 RUN npm run build -w @cookbook/web
 
 FROM nginx:alpine

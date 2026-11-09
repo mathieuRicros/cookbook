@@ -1,14 +1,20 @@
 // Client GraphQL minimal basé sur fetch (aucune dépendance supplémentaire).
 
+import { getToken } from '../auth/tokenStorage';
+
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/graphql';
 
 export async function graphqlRequest<T>(
   query: string,
   variables?: Record<string, unknown>,
 ): Promise<T> {
+  const token = getToken();
   const response = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ query, variables }),
   });
 

@@ -74,47 +74,74 @@ Les migrations sont appliquées automatiquement au démarrage de l'API.
 
 Hébergement gratuit (front, API, base).
 
+## Connexion avec Google (SSO)
+
+Le site lit les recettes sans compte ; **ajouter une recette demande d'être connecté**.
+La connexion utilise Google Sign-In : le navigateur obtient un jeton d'identité de Google,
+l'API le vérifie, crée l'utilisateur à la première connexion et renvoie un jeton de session
+(JWT, 7 jours). La déconnexion supprime ce jeton côté navigateur.
+
+### Créer l'identifiant Google (une fois)
+
+1. [Console Google Cloud](https://console.cloud.google.com) → créer un projet.
+2. **API et services → Écran de consentement OAuth** : type « Externe », nom de l'app, votre e-mail.
+3. **Identifiants → Créer des identifiants → ID client OAuth** : type « Application Web ».
+4. **Origines JavaScript autorisées** : `http://localhost:5173` et l'URL du site en ligne
+   (par ex. `https://cookbook-web-xxxx.onrender.com`, sans `/` final).
+5. Copier l'**ID client** (`xxxx.apps.googleusercontent.com`). Il n'y a pas de secret à gérer.
+
+### Configurer
+
+| Où | Variable | Valeur |
+|---|---|---|
+| `apps/api/.env` | `GOOGLE_CLIENT_ID` | l'ID client |
+| `apps/web/.env` | `VITE_GOOGLE_CLIENT_ID` | le même ID client |
+| `apps/api/.env` | `JWT_SECRET` | une valeur aléatoire (`openssl rand -base64 32`) |
+
 ## Déploiement (offres gratuites)
 
 | Brique | Service | Dossier |
 |---|---|---|
 | Base PostgreSQL | [Neon](https://neon.com) | – |
-| API | [Render](https://render.com) (Docker) | `apps/api` + `render.yaml` |
-| Front | [Vercel](https://vercel.com) | `apps/web` |
+| API | [Render](https://render.com) Web Service (Docker) | `apps/api` + `render.yaml` |
+| Front | [Render](https://render.com) Static Site | `apps/web` |
 
 Limites à connaître : l'API Render gratuite s'endort après 15 min sans trafic
 (le premier appel suivant prend environ une minute) ; Neon met aussi la base en
-veille après 5 min ; Vercel Hobby est réservé aux usages non commerciaux.
+veille après 5 min.
 
 ### 1. Base de données (Neon)
 
-1. Créer un projet Neon, région Europe.
-2. Copier l'URL de connexion **directe** (non « pooled »), du type
-   `postgresql://user:motdepasse@ep-xxx.neon.tech/neondb?sslmode=require`.
-3. Insérer les données de départ une fois, depuis votre machine :
-
-```bash
-DATABASE_URL="<url neon>" npm run db:seed
-```
-
+Créer un projet Neon et récupérer l'URL de connexion **directe** (non « pooled »).
 Les tables sont créées automatiquement par l'API au démarrage (`prisma migrate deploy`).
 
-### 2. API (Render)
+### 2. API (Render, Web Service)
 
-1. Render → New → **Blueprint** → choisir le dépôt GitHub (le fichier `render.yaml` est détecté).
-2. Renseigner `DATABASE_URL` (URL Neon). Laisser `CORS_ORIGIN` vide pour l'instant.
-3. Une fois déployée, noter l'URL de l'API, par ex. `https://cookbook-api.onrender.com`.
+- Language **Docker**, branche `main`, Dockerfile `./apps/api/Dockerfile`, Health Check `/health`.
+- Variables d'environnement :
 
-### 3. Front (Vercel)
+| Clé | Valeur |
+|---|---|
+| `DATABASE_URL` | URL Neon directe |
+| `CORS_ORIGIN` | URL du site statique, sans `/` final |
+| `GOOGLE_CLIENT_ID` | ID client Google |
+| `JWT_SECRET` | valeur aléatoire longue (obligatoire en production) |
 
-1. Vercel → Add New Project → choisir le dépôt.
-2. **Root Directory** : `apps/web`. Framework : Vite.
-3. Variable d'environnement : `VITE_API_URL=https://<url-api-render>/graphql`.
-4. Déployer et noter l'URL du site.
+### 3. Front (Render, Static Site)
 
-### 4. Boucler
+- Branche `main`, Root Directory `apps/web`.
+- Build Command : `cd ../.. && npm ci && npm run build -w @cookbook/web`
+- Publish Directory : `dist`
+- Variables d'environnement :
 
-Dans Render, renseigner `CORS_ORIGIN` avec l'URL Vercel (sans `/` final) : l'API
-redémarre et le site peut l'appeler.
+| Clé | Valeur |
+|---|---|
+| `VITE_API_URL` | `https://<url-api>/graphql` |
+| `VITE_GOOGLE_CLIENT_ID` | ID client Google |
 
-Chaque `git push` sur la branche déployée redéploie automatiquement.
+Les variables `VITE_*` sont intégrées au moment du build : après les avoir modifiées,
+relancer un déploiement du site.
+
+### Redéploiement
+
+Chaque `git push` sur `main` redéploie automatiquement l'API et le site.

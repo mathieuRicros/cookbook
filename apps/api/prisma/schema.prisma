@@ -10,9 +10,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        String   @id @default(cuid())
+  googleId  String   @unique
+  email     String   @unique
+  name      String
+  picture   String?
+  createdAt DateTime @default(now())
+  recipes   Recipe[]
+}
+
 model Recipe {
   id          String   @id @default(cuid())
   title       String
   description String
   createdAt   DateTime @default(now())
+  // Optionnel : les recettes créées avant l'authentification n'ont pas d'auteur
+  author      User?    @relation(fields: [authorId], references: [id])
+  authorId    String?
 }

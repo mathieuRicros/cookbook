@@ -1,5 +1,6 @@
 # Blueprint Render : déploie l'API (Docker) sur l'offre gratuite.
-# Le front est sur Vercel et la base sur Neon (voir README, section Déploiement).
+# Le front est un Static Site Render créé à la main, la base est sur Neon
+# (voir README, section Déploiement).
 
 services:
   - type: web
@@ -15,3 +16,7 @@ services:
         sync: false
       - key: CORS_ORIGIN
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true

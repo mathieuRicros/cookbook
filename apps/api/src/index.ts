@@ -3,12 +3,14 @@
 import { createServer } from 'node:http';
 import { createYoga } from 'graphql-yoga';
 import { env } from './config/env.js';
+import { buildContext } from './graphql/context.js';
 import { schema } from './graphql/schema.js';
 
 const yoga = createYoga({
   schema,
+  context: buildContext,
   graphqlEndpoint: '/graphql',
-  cors: { origin: env.corsOrigin },
+  cors: { origin: env.corsOrigin, allowedHeaders: ['content-type', 'authorization'] },
 });
 
 createServer(yoga).listen(env.port, () => {

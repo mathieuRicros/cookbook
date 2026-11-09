@@ -3,6 +3,7 @@
 #   Stack complète en conteneurs      : npm run docker:up
 #
 # Ports modifiables via variables d'environnement : DB_PORT, API_PORT, WEB_PORT.
+# GOOGLE_CLIENT_ID et JWT_SECRET peuvent être placés dans un fichier .env à la racine.
 
 services:
   db:
@@ -30,6 +31,8 @@ services:
       PORT: 4000
       DATABASE_URL: postgresql://cookbook:cookbook@db:5432/cookbook
       CORS_ORIGIN: http://localhost:${WEB_PORT:-8080}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-a-ne-pas-utiliser-en-production}
     ports:
       - "${API_PORT:-4000}:4000"
     depends_on:
@@ -43,6 +46,7 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         VITE_API_URL: http://localhost:${API_PORT:-4000}/graphql
+        VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
     ports:
       - "${WEB_PORT:-8080}:80"
     depends_on:

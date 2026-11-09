@@ -6,19 +6,22 @@ export interface Recipe {
   id: string;
   title: string;
   description: string;
+  author: { name: string } | null;
 }
+
+const RECIPE_FIELDS = 'id title description author { name }';
 
 export async function fetchRecipes(): Promise<Recipe[]> {
   const data = await graphqlRequest<{ recipes: Recipe[] }>(
-    `query { recipes { id title description } }`,
+    `query { recipes { ${RECIPE_FIELDS} } }`,
   );
   return data.recipes;
 }
 
-export async function addRecipe(input: Omit<Recipe, 'id'>): Promise<Recipe> {
+export async function addRecipe(input: { title: string; description: string }): Promise<Recipe> {
   const data = await graphqlRequest<{ addRecipe: Recipe }>(
     `mutation ($input: AddRecipeInput!) {
-       addRecipe(input: $input) { id title description }
+       addRecipe(input: $input) { ${RECIPE_FIELDS} }
      }`,
     { input },
   );

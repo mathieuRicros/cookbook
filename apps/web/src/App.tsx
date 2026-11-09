@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { addRecipe, fetchRecipes, type Recipe } from './api/recipes';
+import { useAuth } from './auth/AuthContext';
 import { AddRecipeForm } from './components/AddRecipeForm';
+import { Header } from './components/Header';
 import { RecipeList } from './components/RecipeList';
 
 export function App() {
+  const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,10 +25,14 @@ export function App() {
 
   return (
     <main>
-      <h1>Cookbook</h1>
+      <Header />
       {error && <p className="error">Erreur : {error}</p>}
       <RecipeList recipes={recipes} />
-      <AddRecipeForm onSubmit={handleAdd} />
+      {user ? (
+        <AddRecipeForm onSubmit={handleAdd} />
+      ) : (
+        <p>Connectez-vous avec Google pour ajouter une recette.</p>
+      )}
     </main>
   );
 }
